@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alponte-v10';
+const CACHE_NAME = 'alponte-v11';
 const urlsToCache = [
     './',
     './index.html',

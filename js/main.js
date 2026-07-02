@@ -1,4 +1,44 @@
 /* ========================================
+   SITE ASSETS — inserisci qui le tue immagini
+   Cartelle: images/logo/, images/hero/,
+   images/menu/, images/gallery/
+   Dimensioni consigliate:
+     logo: PNG/SVG ~200×200
+     hero: JPG/WebP 1920×1080
+     menu/{categoria}.jpg: 800×600
+======================================== */
+const siteAssets = {
+    logo: null,
+    hero: null,
+    about: null,
+    menu: {
+        antipasti: null,
+        primi: null,
+        pizze: null,
+        secondi: null,
+        contorni: null,
+        dessert: null,
+        birre: null,
+        vini_rossi: null,
+        vini_bianchi: null,
+        bevande: null
+    }
+};
+
+const categoryIcons = {
+    antipasti: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11h16"/><path d="M6 11a6 6 0 0 1 12 0"/><path d="M7 15h10"/></svg>',
+    primi: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3v18"/><path d="M9 3v18"/><path d="M13 3v18"/><path d="M18 5c2 2 2 5 0 7v9"/></svg>',
+    pizze: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21 3 3c6 0 12 3 18 9l-9 9z"/><circle cx="10" cy="9" r="1"/><circle cx="13" cy="14" r="1"/></svg>',
+    secondi: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12h12"/><path d="M6 16h12"/><path d="M8 8h8"/></svg>',
+    contorni: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21 3 3c6 0 12 3 18 9l-9 9z"/></svg>',
+    dessert: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11h16"/><path d="M6 11l2-6h8l2 6"/></svg>',
+    birre: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3h8l-1 8a4 4 0 0 1-6 0L8 3z"/><path d="M12 14v7"/></svg>',
+    vini_rossi: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 22h8"/><path d="M7 10h10l-1 12H8L7 10z"/><path d="M12 10V6"/></svg>',
+    vini_bianchi: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 22h8"/><path d="M7 10h10l-1 12H8L7 10z"/><path d="M12 10V6"/></svg>',
+    bevande: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2h8v6a4 4 0 0 1-8 0V2z"/><path d="M12 12v10"/></svg>'
+};
+
+/* ========================================
    NAVBAR SCROLL EFFECT
 ======================================== */
 const RESTAURANT_CONTACT_NUMBER = '39054329448';
@@ -28,6 +68,51 @@ function normalizeSearchText(value) {
         .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase();
 }
+
+function applySiteLogo() {
+    if (!siteAssets.logo) return;
+    document.querySelectorAll('.logo-icon').forEach(icon => {
+        const img = document.createElement('img');
+        img.src = siteAssets.logo;
+        img.alt = 'Al Ponte di Schiavonia';
+        img.className = 'logo-img';
+        icon.replaceWith(img);
+    });
+}
+
+function applyHeroImage() {
+    if (!siteAssets.hero) return;
+    const hero = document.querySelector('.hero[data-asset="hero"]');
+    if (!hero) return;
+    hero.style.backgroundImage = `
+        linear-gradient(90deg, rgba(26, 17, 15, 0.86) 0%, rgba(79, 25, 20, 0.68) 45%, rgba(26, 17, 15, 0.3) 100%),
+        url('${siteAssets.hero}')
+    `;
+}
+
+function applyAboutImage() {
+    if (!siteAssets.about) return;
+    const placeholder = document.querySelector('.about-image-placeholder');
+    if (!placeholder) return;
+    const img = document.createElement('img');
+    img.src = siteAssets.about;
+    img.alt = 'Al Ponte di Schiavonia';
+    img.loading = 'lazy';
+    placeholder.replaceWith(img);
+}
+
+function getMenuImageHtml(category, itemName) {
+    const menuImage = siteAssets.menu?.[category];
+    if (menuImage) {
+        return `<div class="menu-item-image"><img src="${escapeHtml(menuImage)}" alt="${escapeHtml(itemName)}" loading="lazy"></div>`;
+    }
+    const icon = categoryIcons[category] || categoryIcons.pizze;
+    return `<div class="menu-item-image"><div class="menu-item-placeholder" data-category="${escapeHtml(category)}">${icon}</div></div>`;
+}
+
+applySiteLogo();
+applyHeroImage();
+applyAboutImage();
 
 const icons = {
     menu: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3v18"/><path d="M8 3v18"/><path d="M4 9h4"/><path d="M16 3c2 2 3 4.5 3 7s-1 5-3 7v4"/></svg>',
@@ -1060,6 +1145,7 @@ function renderMenuItems() {
 
             html += `
                 <div class="menu-item animate-on-scroll category-${escapeHtml(category)}" data-category="${escapeHtml(category)}" data-search="${escapeHtml(searchText)}">
+                    ${getMenuImageHtml(category, item.name)}
                     <div class="menu-item-content">
                         <div class="menu-item-header">
                             <h3>${escapeHtml(item.name)}</h3>
