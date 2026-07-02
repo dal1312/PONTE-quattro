@@ -3,6 +3,7 @@
 ======================================== */
 const RESTAURANT_CONTACT_NUMBER = '39054329448';
 const WHATSAPP_BASE_URL = `https://wa.me/${RESTAURANT_CONTACT_NUMBER}`;
+const DELIVERY_FEE = 2.50;
 
 function buildWhatsAppUrl(message = '') {
     return message ? `${WHATSAPP_BASE_URL}?text=${encodeURIComponent(message)}` : WHATSAPP_BASE_URL;
@@ -20,6 +21,25 @@ function escapeHtml(value) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
 }
+
+function normalizeSearchText(value) {
+    return String(value ?? '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+}
+
+const icons = {
+    menu: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3v18"/><path d="M8 3v18"/><path d="M4 9h4"/><path d="M16 3c2 2 3 4.5 3 7s-1 5-3 7v4"/></svg>',
+    scooter: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M9 17h5l2-6h-4l-2-4h3"/><path d="M5 11h4"/></svg>',
+    phone: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3.08 5.18 2 2 0 0 1 5.06 3h3a2 2 0 0 1 2 1.72c.12.9.33 1.77.63 2.6a2 2 0 0 1-.45 2.11L9 10.67a16 16 0 0 0 4.33 4.33l1.24-1.24a2 2 0 0 1 2.11-.45c.83.3 1.7.51 2.6.63A2 2 0 0 1 22 16.92z"/></svg>',
+    message: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>',
+    home: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
+    pin: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+    pizza: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21 3 3c6 0 12 3 18 9l-9 9z"/><circle cx="10" cy="9" r="1"/><circle cx="13" cy="14" r="1"/><path d="M6.5 10.5c2-1 4-1 6 0"/></svg>',
+    cart: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+    wine: '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3h8l-1 8a4 4 0 0 1-6 0L8 3z"/><path d="M12 14v7"/><path d="M9 21h6"/></svg>'
+};
 
 const navbar = document.getElementById('navbar');
 
@@ -50,6 +70,145 @@ if (mobileMenuBtn && mobileMenu) {
         });
     });
 }
+
+/* ========================================
+   MOBILE QUICK ACTIONS
+======================================== */
+function createMobileQuickActions() {
+    const currentPage = location.pathname.split('/').pop() || 'index.html';
+    const isActive = page => currentPage === page ? ' class="active-action"' : '';
+    const quickActions = document.createElement('nav');
+    quickActions.className = 'mobile-quick-actions';
+    quickActions.setAttribute('aria-label', 'Azioni rapide');
+    quickActions.innerHTML = `
+        <a href="menu.html"${isActive('menu.html')}>
+            <span>${icons.menu}</span>
+            <strong>Menu</strong>
+        </a>
+        <a href="ordina.html"${isActive('ordina.html')}>
+            <span>${icons.scooter}</span>
+            <strong>Ordina</strong>
+        </a>
+        <a href="tel:+39054329448">
+            <span>${icons.phone}</span>
+            <strong>Chiama</strong>
+        </a>
+        <a href="${WHATSAPP_BASE_URL}" target="_blank" rel="noopener">
+            <span>${icons.message}</span>
+            <strong>WhatsApp</strong>
+        </a>
+    `;
+    document.body.appendChild(quickActions);
+}
+
+createMobileQuickActions();
+
+/* ========================================
+   THEME TOGGLE
+======================================== */
+function createThemeToggle() {
+    const navContainer = document.querySelector('.nav-container');
+    const menuButton = document.querySelector('.mobile-menu-btn');
+    if (!navContainer || document.querySelector('.theme-toggle')) return;
+
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.body.classList.add('dark-mode');
+    }
+
+    const button = document.createElement('button');
+    button.className = 'theme-toggle';
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Cambia tema');
+    button.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    `;
+    button.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    });
+
+    navContainer.insertBefore(button, menuButton || null);
+}
+
+createThemeToggle();
+
+/* ========================================
+   HERO PARALLAX
+======================================== */
+const heroContent = document.querySelector('.hero-content');
+if (heroContent) {
+    window.addEventListener('scroll', () => {
+        const offset = Math.min(window.scrollY * 0.12, 42);
+        heroContent.style.setProperty('--hero-y', `${offset}px`);
+    }, { passive: true });
+}
+
+/* ========================================
+   GALLERY LIGHTBOX
+======================================== */
+function initGalleryLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightboxImage');
+    const lightboxCaption = document.getElementById('lightboxCaption');
+    const lightboxCounter = document.getElementById('lightboxCounter');
+    if (!lightbox || !lightboxImage || !lightboxCaption || !lightboxCounter) return;
+
+    const galleryImages = Array.from(document.querySelectorAll('.gallery-item img'));
+    const closeBtn = lightbox.querySelector('.lightbox-close');
+    const prevBtn = lightbox.querySelector('.lightbox-prev');
+    const nextBtn = lightbox.querySelector('.lightbox-next');
+    let currentIndex = 0;
+
+    function updateLightbox(index) {
+        currentIndex = (index + galleryImages.length) % galleryImages.length;
+        const image = galleryImages[currentIndex];
+        lightboxImage.src = image.src;
+        lightboxImage.alt = image.alt;
+        lightboxCaption.textContent = image.alt;
+        lightboxCounter.textContent = `${currentIndex + 1} / ${galleryImages.length}`;
+    }
+
+    function openLightbox(index) {
+        updateLightbox(index);
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    galleryImages.forEach((image, index) => {
+        image.parentElement.setAttribute('tabindex', '0');
+        image.parentElement.setAttribute('role', 'button');
+        image.parentElement.addEventListener('click', () => openLightbox(index));
+        image.parentElement.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openLightbox(index);
+            }
+        });
+    });
+
+    closeBtn?.addEventListener('click', closeLightbox);
+    prevBtn?.addEventListener('click', () => updateLightbox(currentIndex - 1));
+    nextBtn?.addEventListener('click', () => updateLightbox(currentIndex + 1));
+    lightbox.addEventListener('click', event => {
+        if (event.target === lightbox) closeLightbox();
+    });
+    document.addEventListener('keydown', event => {
+        if (!lightbox.classList.contains('active')) return;
+        if (event.key === 'Escape') closeLightbox();
+        if (event.key === 'ArrowLeft') updateLightbox(currentIndex - 1);
+        if (event.key === 'ArrowRight') updateLightbox(currentIndex + 1);
+    });
+}
+
+initGalleryLightbox();
 
 /* ========================================
    SCROLL ANIMATIONS (Intersection Observer)
@@ -378,7 +537,7 @@ function createPizzaModal() {
             <div class="modal-body">
                 <!-- EXTRA -->
                 <div class="modal-section">
-                    <div class="modal-section-title">🧀 Aggiunte Extra</div>
+                    <div class="modal-section-title">${icons.pizza} Aggiunte Extra</div>
                     <div class="extra-list" id="extraList">
                         ${pizzaExtras.map(e => `
                             <label class="extra-item" data-extra="${e.id}">
@@ -395,13 +554,13 @@ function createPizzaModal() {
 
                 <!-- RIMOZIONI INGREDIENTI -->
                 <div class="modal-section" id="removeSection">
-                    <div class="modal-section-title">🚫 Rimuovi Ingredienti</div>
+                    <div class="modal-section-title">Rimuovi Ingredienti</div>
                     <div class="remove-list" id="removeList"></div>
                 </div>
 
                 <!-- NOTE -->
                 <div class="modal-section">
-                    <div class="modal-section-title">📝 Note Speciali</div>
+                    <div class="modal-section-title">Note Speciali</div>
                     <div class="modal-notes">
                         <textarea id="pizzaNotes" placeholder="Es: senza cipolla, ben cotta, impasto sottile..."></textarea>
                     </div>
@@ -413,7 +572,7 @@ function createPizzaModal() {
                     <span class="modal-total-price" id="modalTotal">€7,00</span>
                 </div>
                 <button class="btn-add-custom" onclick="addCustomPizzaToCart()">
-                    🛒 Aggiungi al Carrello
+                    ${icons.cart} Aggiungi al Carrello
                 </button>
             </div>
         </div>
@@ -431,7 +590,7 @@ function openPizzaModal(pizzaName, pizzaPrice, pizzaIngredients) {
     removedIngredients = [];
     pizzaNotes = '';
 
-    document.getElementById('modalPizzaName').textContent = `🍕 ${pizzaName}`;
+    document.getElementById('modalPizzaName').innerHTML = `${icons.pizza} ${escapeHtml(pizzaName)}`;
     document.getElementById('pizzaNotes').value = '';
 
     document.querySelectorAll('.extra-item').forEach(item => {
@@ -624,6 +783,11 @@ class Cart {
     getTotal() {
         return this.items.reduce((sum, item) => sum + item.price * item.qty, 0);
     }
+
+    getDeliveryFee() {
+        const deliveryMode = document.querySelector('input[name="mode"][value="consegna"]');
+        return deliveryMode && deliveryMode.checked && this.getCount() > 0 ? DELIVERY_FEE : 0;
+    }
     
     getCount() {
         return this.items.reduce((sum, item) => sum + item.qty, 0);
@@ -667,7 +831,9 @@ class Cart {
     
     updateUI() {
         const count = this.getCount();
-        const total = this.getTotal();
+        const subtotal = this.getTotal();
+        const deliveryFee = this.getDeliveryFee();
+        const total = subtotal + deliveryFee;
         
         const cartCount = document.querySelector('.cart-count');
         if (cartCount) cartCount.textContent = count;
@@ -682,8 +848,12 @@ class Cart {
         }
         
         const subtotalEl = document.getElementById('subtotal');
+        const deliveryRow = document.getElementById('deliveryRow');
+        const deliveryFeeEl = document.getElementById('deliveryFee');
         const totalEl = document.getElementById('total');
-        if (subtotalEl) subtotalEl.textContent = formatPrice(total);
+        if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal);
+        if (deliveryRow) deliveryRow.hidden = deliveryFee === 0;
+        if (deliveryFeeEl) deliveryFeeEl.textContent = formatPrice(deliveryFee);
         if (totalEl) totalEl.textContent = formatPrice(total);
         
         const submitBtn = document.getElementById('submitOrder');
@@ -693,20 +863,30 @@ class Cart {
     }
     
     showNotification(message) {
+        document.querySelectorAll('.cart-notification').forEach(item => item.remove());
         const notif = document.createElement('div');
         notif.className = 'cart-notification';
-        notif.textContent = message;
+        notif.innerHTML = `
+            <span class="cart-notification-icon">${icons.cart}</span>
+            <span>${escapeHtml(message)}</span>
+            <a href="ordina.html">Vedi ordine</a>
+        `;
         notif.style.cssText = `
             position: fixed;
             bottom: 100px;
             right: 2rem;
-            background: var(--dark);
-            color: white;
-            padding: 0.75rem 1.25rem;
-            border-radius: 50px;
+            max-width: min(360px, calc(100vw - 2rem));
+            background: var(--surface);
+            color: var(--dark);
+            padding: 0.85rem 1rem;
+            border-radius: 18px;
             font-size: 0.9rem;
-            z-index: 1001;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 3001;
+            box-shadow: 0 18px 48px rgba(0,0,0,0.18);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
             animation: slideInRight 0.3s ease;
         `;
         document.body.appendChild(notif);
@@ -749,12 +929,50 @@ createPizzaModal();
 /* ========================================
    ORDER PAGE - Genera items dalle categorie
 ======================================== */
+function createSkeletonCard() {
+    return `
+        <div class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-pill"></div>
+        </div>
+    `;
+}
+
+function createSkeletonOrderItem() {
+    return `
+        <div class="skeleton-order-item" aria-hidden="true">
+            <div class="skeleton-line title"></div>
+            <div class="skeleton-line short"></div>
+        </div>
+    `;
+}
+
+function showMenuSkeleton() {
+    const menuGrid = document.getElementById('menu-grid');
+    if (menuGrid) {
+        menuGrid.setAttribute('aria-busy', 'true');
+        menuGrid.innerHTML = Array.from({ length: 8 }, createSkeletonCard).join('');
+    }
+}
+
+function showOrderSkeleton() {
+    ['pizze', 'antipasti', 'primi', 'bevande', 'dessert'].forEach(category => {
+        const container = document.getElementById(`${category}-list`);
+        if (!container) return;
+        container.setAttribute('aria-busy', 'true');
+        container.innerHTML = Array.from({ length: 4 }, createSkeletonOrderItem).join('');
+    });
+}
+
 function renderOrderItems() {
     const categories = ['pizze', 'antipasti', 'primi', 'bevande', 'dessert'];
     
     categories.forEach(category => {
         const container = document.getElementById(`${category}-list`);
         if (!container || !menuData[category]) return;
+        container.removeAttribute('aria-busy');
         
         const isPizza = category === 'pizze';
         
@@ -768,7 +986,7 @@ function renderOrderItems() {
                         <div class="order-item-name">${escapeHtml(item.name)}</div>
                         <div class="order-item-bottom">
                             <span class="order-item-price">${formatPrice(item.price)}</span>
-                            <button class="btn-add-small btn-customize-order" type="button" data-name="${escapeHtml(item.name)}" data-price="${item.price}" data-ingredients='${ingredientsJson}' aria-label="Personalizza ${escapeHtml(item.name)}">🍕</button>
+                            <button class="btn-add-small btn-customize-order" type="button" data-name="${escapeHtml(item.name)}" data-price="${item.price}" data-ingredients='${ingredientsJson}' aria-label="Personalizza ${escapeHtml(item.name)}">${icons.pizza}</button>
                         </div>
                     </div>
                 `;
@@ -801,7 +1019,8 @@ function renderOrderItems() {
 }
 
 if (document.getElementById('pizze-list')) {
-    renderOrderItems();
+    showOrderSkeleton();
+    setTimeout(renderOrderItems, 180);
 }
 
 /* ========================================
@@ -810,6 +1029,7 @@ if (document.getElementById('pizze-list')) {
 function renderMenuItems() {
     const menuGrid = document.getElementById('menu-grid');
     if (!menuGrid) return;
+    menuGrid.removeAttribute('aria-busy');
     
     let html = '';
     
@@ -827,11 +1047,19 @@ function renderMenuItems() {
             const ingredientsArray = item.ingredients ? item.ingredients.split(', ').filter(i => i.trim()) : [];
             
             const addBtnHtml = isPizza
-                ? `<button class="btn-add-to-cart btn-customize" type="button" data-name="${escapeHtml(item.name)}" data-price="${item.price}" data-ingredients='${escapeHtml(JSON.stringify(ingredientsArray))}'>🍕 Personalizza</button>`
+                ? `<button class="btn-add-to-cart btn-customize" type="button" data-name="${escapeHtml(item.name)}" data-price="${item.price}" data-ingredients='${escapeHtml(JSON.stringify(ingredientsArray))}'>${icons.pizza} Personalizza</button>`
                 : `<button class="btn-add-to-cart" type="button" data-name="${escapeHtml(item.name)}" data-price="${item.price}">+ Aggiungi</button>`;
             
+            const searchText = normalizeSearchText([
+                item.name,
+                item.description,
+                item.ingredients,
+                item.allergens ? item.allergens.join(' ') : '',
+                category
+            ].join(' '));
+
             html += `
-                <div class="menu-item animate-on-scroll category-${escapeHtml(category)}" data-category="${escapeHtml(category)}">
+                <div class="menu-item animate-on-scroll category-${escapeHtml(category)}" data-category="${escapeHtml(category)}" data-search="${escapeHtml(searchText)}">
                     <div class="menu-item-content">
                         <div class="menu-item-header">
                             <h3>${escapeHtml(item.name)}</h3>
@@ -871,40 +1099,59 @@ function renderMenuItems() {
 }
 
 if (document.getElementById('menu-grid')) {
-    renderMenuItems();
+    showMenuSkeleton();
+    setTimeout(renderMenuItems, 180);
 }
 
 /* ========================================
    MENU FILTERS
 ======================================== */
 const filterBtns = document.querySelectorAll('.filter-btn');
+const menuSearch = document.getElementById('menuSearch');
+const menuEmpty = document.getElementById('menuEmpty');
+let activeMenuCategory = 'all';
+
+function applyMenuFilters(shouldScroll = false) {
+    const items = document.querySelectorAll('#menu-grid .menu-item');
+    const query = normalizeSearchText(menuSearch ? menuSearch.value : '');
+    let visibleCount = 0;
+
+    items.forEach(item => {
+        const categoryMatches = activeMenuCategory === 'all' || item.dataset.category === activeMenuCategory;
+        const searchMatches = !query || (item.dataset.search || '').includes(query);
+        const visible = categoryMatches && searchMatches;
+        item.style.display = visible ? '' : 'none';
+        if (visible) visibleCount++;
+    });
+
+    if (menuEmpty) {
+        menuEmpty.hidden = visibleCount !== 0;
+    }
+
+    if (shouldScroll) {
+        const menuGrid = document.getElementById('menu-grid');
+        if (menuGrid) {
+            const stickyOffset = 180;
+            const top = menuGrid.getBoundingClientRect().top + window.scrollY - stickyOffset;
+            window.scrollTo({ top, behavior: 'smooth' });
+        }
+    }
+}
 
 filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         filterBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
-        const category = btn.dataset.category;
-        const items = document.querySelectorAll('#menu-grid .menu-item');
-        
-        if (category === 'all') {
-            items.forEach(item => {
-                item.style.display = '';
-            });
-        } else {
-            items.forEach(item => {
-                item.style.display = item.dataset.category === category ? '' : 'none';
-            });
-        }
-
-        const menuGrid = document.getElementById('menu-grid');
-        if (menuGrid) {
-            const stickyOffset = 160;
-            const top = menuGrid.getBoundingClientRect().top + window.scrollY - stickyOffset;
-            window.scrollTo({ top, behavior: 'smooth' });
-        }
+        activeMenuCategory = btn.dataset.category;
+        applyMenuFilters(true);
     });
 });
+
+if (menuSearch) {
+    menuSearch.addEventListener('input', () => {
+        applyMenuFilters(false);
+    });
+}
 
 /* ========================================
    ORDER FORM - Indirizzo condizionale
@@ -923,6 +1170,7 @@ modeRadios.forEach(radio => {
             addressField.style.display = 'none';
             addressField.querySelector('input').required = false;
         }
+        cart.updateUI();
     });
 });
 
@@ -944,17 +1192,22 @@ if (orderForm) {
         const name = formData.get('name');
         const phone = formData.get('phone');
         const mode = formData.get('mode');
+        const time = formData.get('time');
         const address = formData.get('address') || '-';
         const notes = formData.get('notes') || '-';
+        const deliveryFee = cart.getDeliveryFee();
+        const totalWithDelivery = cart.getTotal() + deliveryFee;
         
-        let message = `🍕 *NUOVO ORDINE - Al Ponte di Schiavonia* 🍕\n\n`;
-        message += `👤 *Cliente:* ${name}\n`;
-        message += `📞 *Telefono:* ${phone}\n`;
-        message += `🚚 *Modalità:* ${mode === 'ritiro' ? 'Ritiro in loco' : 'Consegna a domicilio'}\n`;
+        let message = `*NUOVO ORDINE - Al Ponte di Schiavonia*\n\n`;
+        message += `*Cliente:* ${name}\n`;
+        message += `*Telefono:* ${phone}\n`;
+        message += `*Modalità:* ${mode === 'ritiro' ? 'Ritiro in loco' : 'Consegna a domicilio'}\n`;
+        message += `*Orario preferito:* ${time}\n`;
         if (mode === 'consegna') {
-            message += `📍 *Indirizzo:* ${address}\n`;
+            message += `*Indirizzo:* ${address}\n`;
+            message += `*Consegna:* ${formatPrice(deliveryFee)}\n`;
         }
-        message += `\n📋 *ORDINE:*\n`;
+        message += `\n*ORDINE:*\n`;
         
         cart.items.forEach(item => {
             message += `• ${item.qty}x ${item.name} = €${(item.price * item.qty).toFixed(2)}\n`;
@@ -963,9 +1216,9 @@ if (orderForm) {
             }
         });
         
-        message += `\n💰 *TOTALE: €${cart.getTotal().toFixed(2)}*`;
+        message += `\n*TOTALE: ${formatPrice(totalWithDelivery)}*`;
         if (notes !== '-') {
-            message += `\n\n📝 *Note:* ${notes}`;
+            message += `\n\n*Note:* ${notes}`;
         }
         
         const whatsappUrl = buildWhatsAppUrl(message);

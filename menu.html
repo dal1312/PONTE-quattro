@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu • Al Ponte di Schiavonia | Trattoria e Pizzeria Forlì</title>
-    <meta name="description" content="Menu completo: antipasti, primi romagnoli, 33 pizze al forno a legna, secondi di carne e pesce, dolci, birre e vini. Ingredienti freschi e tradizione dal 1978.">
+    <meta name="description" content="Menu Al Ponte di Schiavonia a Forlì: antipasti, primi romagnoli, 33 pizze, secondi, dolci, birre e vini. Ordina direttamente senza commissioni.">
+    <meta name="keywords" content="menu pizzeria Forlì, pizze Forlì, trattoria romagnola Forlì, menu Al Ponte di Schiavonia">
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -15,7 +18,7 @@
 <nav class="navbar" id="navbar">
     <div class="container nav-container">
         <a href="index.html" class="logo">
-            <span class="logo-icon">🍷</span>
+            <span class="logo-icon"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3h8l-1 8a4 4 0 0 1-6 0L8 3z"/><path d="M12 14v7"/><path d="M9 21h6"/></svg></span>
             <span class="logo-text">Al Ponte<br><small>di Schiavonia</small></span>
         </a>
         <ul class="nav-links">
@@ -43,24 +46,30 @@
     <div class="container">
         <span class="section-label light">I NOSTRI PIATTI</span>
         <h1 class="page-title">Il Nostro <em>Menu</em></h1>
-        <p class="page-subtitle">Tradizione romagnola, ingredienti freschi e forno a legna • Dal 1978</p>
+        <p class="page-subtitle">Tradizione romagnola e ingredienti freschi • Dal 1978</p>
     </div>
 </header>
 
 <!-- FILTRI CATEGORIE STICKY -->
 <div class="menu-filters" id="menuFilters">
     <div class="container">
-        <button class="filter-btn active" data-category="all">Tutti</button>
-        <button class="filter-btn" data-category="antipasti">Antipasti</button>
-        <button class="filter-btn" data-category="primi">Primi</button>
-        <button class="filter-btn" data-category="pizze">Pizze</button>
-        <button class="filter-btn" data-category="secondi">Secondi</button>
-        <button class="filter-btn" data-category="contorni">Contorni</button>
-        <button class="filter-btn" data-category="dessert">Dessert</button>
-        <button class="filter-btn" data-category="birre">Birre</button>
-        <button class="filter-btn" data-category="vini_rossi">Vini Rossi</button>
-        <button class="filter-btn" data-category="vini_bianchi">Vini Bianchi</button>
-        <button class="filter-btn" data-category="bevande">Bevande</button>
+        <div class="menu-filter-row">
+            <button class="filter-btn active" data-category="all">Tutti</button>
+            <button class="filter-btn" data-category="antipasti">Antipasti</button>
+            <button class="filter-btn" data-category="primi">Primi</button>
+            <button class="filter-btn" data-category="pizze">Pizze</button>
+            <button class="filter-btn" data-category="secondi">Secondi</button>
+            <button class="filter-btn" data-category="contorni">Contorni</button>
+            <button class="filter-btn" data-category="dessert">Dessert</button>
+            <button class="filter-btn" data-category="birre">Birre</button>
+            <button class="filter-btn" data-category="vini_rossi">Vini Rossi</button>
+            <button class="filter-btn" data-category="vini_bianchi">Vini Bianchi</button>
+            <button class="filter-btn" data-category="bevande">Bevande</button>
+        </div>
+        <div class="menu-search">
+            <span aria-hidden="true"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+            <input type="search" id="menuSearch" placeholder="Cerca piatti o ingredienti" aria-label="Cerca piatti o ingredienti">
+        </div>
     </div>
 </div>
 
@@ -69,9 +78,13 @@
         <div class="menu-grid" id="menu-grid">
             <!-- Popolato dinamicamente da main.js -->
         </div>
+        <div class="menu-empty" id="menuEmpty" hidden>
+            <strong>Nessun risultato</strong>
+            <span>Prova con un altro ingrediente o categoria.</span>
+        </div>
 
         <div class="allergens-disclaimer animate-on-scroll">
-            <p><strong>⚠️ Informazioni allergeni:</strong> I prezzi sono in Euro, IVA inclusa. Gli ingredienti sono soggetti a variazioni stagionali. In caso di allergie o intolleranze alimentari, si prega di informare il personale di sala.</p>
+            <p><strong>Informazioni allergeni:</strong> I prezzi sono in Euro, IVA inclusa. Gli ingredienti sono soggetti a variazioni stagionali. In caso di allergie o intolleranze alimentari, si prega di informare il personale di sala.</p>
         </div>
     </div>
 </main>

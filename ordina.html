@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ordina Online • Al Ponte di Schiavonia</title>
-    <meta name="description" content="Ordina online senza commissioni: ritiro in loco o consegna a domicilio a Forlì.">
+    <meta name="description" content="Ordina online da Al Ponte di Schiavonia a Forlì: pizze, cucina romagnola, ritiro in loco e consegna a domicilio senza app esterne.">
+    <meta name="keywords" content="ordina pizza Forlì, pizza domicilio Forlì, pizzeria Forlì consegna, Al Ponte di Schiavonia ordini">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" href="favicon.ico" sizes="any">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
@@ -14,7 +17,7 @@
 <nav class="navbar" id="navbar">
     <div class="container nav-container">
         <a href="index.html" class="logo">
-            <span class="logo-icon">🍷</span>
+            <span class="logo-icon"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3h8l-1 8a4 4 0 0 1-6 0L8 3z"/><path d="M12 14v7"/><path d="M9 21h6"/></svg></span>
             <span class="logo-text">Al Ponte<br><small>di Schiavonia</small></span>
         </a>
         <ul class="nav-links">
@@ -52,26 +55,26 @@
 
             <!-- CATEGORIE MENU -->
             <div class="order-menu">
-                <h2>🍕 Pizze</h2>
+                <h2><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21 3 3c6 0 12 3 18 9l-9 9z"/><circle cx="10" cy="9" r="1"/><circle cx="13" cy="14" r="1"/><path d="M6.5 10.5c2-1 4-1 6 0"/></svg> Pizze</h2>
                 <div class="order-items" id="pizze-list"></div>
 
-                <h2>🥗 Antipasti</h2>
+                <h2><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11h16"/><path d="M6 11a6 6 0 0 1 12 0"/><path d="M7 15h10"/><path d="M9 19h6"/></svg> Antipasti</h2>
                 <div class="order-items" id="antipasti-list"></div>
 
-                <h2>🍝 Primi</h2>
+                <h2><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3v18"/><path d="M9 3v18"/><path d="M13 3v18"/><path d="M18 5c2 2 2 5 0 7v9"/></svg> Primi</h2>
                 <div class="order-items" id="primi-list"></div>
 
-                <h2>🍺 Bevande</h2>
+                <h2><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3h8l-1 8a4 4 0 0 1-6 0L8 3z"/><path d="M12 14v7"/><path d="M9 21h6"/></svg> Bevande</h2>
                 <div class="order-items" id="bevande-list"></div>
 
-                <h2>🍰 Dessert</h2>
+                <h2><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11h16"/><path d="M6 11l2-6h8l2 6"/><path d="M6 15h12"/><path d="M8 19h8"/></svg> Dessert</h2>
                 <div class="order-items" id="dessert-list"></div>
             </div>
 
             <!-- CARRELLO -->
             <aside class="order-cart" id="cart">
                 <div class="cart-header">
-                    <h3>🛒 Il tuo ordine</h3>
+                    <h3><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Il tuo ordine</h3>
                     <button class="cart-clear" id="clearCart">Svuota</button>
                 </div>
                 
@@ -86,6 +89,10 @@
                     <div class="summary-row">
                         <span>Subtotale</span>
                         <span id="subtotal">€0,00</span>
+                    </div>
+                    <div class="summary-row" id="deliveryRow" hidden>
+                        <span>Consegna</span>
+                        <span id="deliveryFee">€0,00</span>
                     </div>
                     <div class="summary-row total">
                         <span>Totale</span>
@@ -108,17 +115,34 @@
                         <div class="radio-group">
                             <label class="radio-label">
                                 <input type="radio" name="mode" value="ritiro" checked>
-                                <span>🏠 Ritiro in loco</span>
+                                <span><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg> Ritiro in loco</span>
                             </label>
                             <label class="radio-label">
                                 <input type="radio" name="mode" value="consegna">
-                                <span>🛵 Consegna a domicilio</span>
+                                <span><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M9 17h5l2-6h-4l-2-4h3"/><path d="M5 11h4"/></svg> Consegna a domicilio</span>
                             </label>
                         </div>
                     </div>
                     <div class="form-group" id="addressField" style="display:none;">
                         <label>Indirizzo di consegna *</label>
                         <input type="text" name="address" placeholder="Via, numero civico">
+                    </div>
+                    <div class="form-group">
+                        <label>Orario preferito *</label>
+                        <select name="time" required>
+                            <option value="">Scegli un orario</option>
+                            <option value="12:00-12:30">12:00 - 12:30</option>
+                            <option value="12:30-13:00">12:30 - 13:00</option>
+                            <option value="13:00-13:30">13:00 - 13:30</option>
+                            <option value="13:30-14:00">13:30 - 14:00</option>
+                            <option value="19:00-19:30">19:00 - 19:30</option>
+                            <option value="19:30-20:00">19:30 - 20:00</option>
+                            <option value="20:00-20:30">20:00 - 20:30</option>
+                            <option value="20:30-21:00">20:30 - 21:00</option>
+                            <option value="21:00-21:30">21:00 - 21:30</option>
+                            <option value="21:30-22:00">21:30 - 22:00</option>
+                        </select>
+                        <p class="form-hint">L'orario sara confermato via WhatsApp.</p>
                     </div>
                     <div class="form-group">
                         <label>Note (opzionale)</label>
